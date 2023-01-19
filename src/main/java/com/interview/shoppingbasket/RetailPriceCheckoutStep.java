@@ -5,11 +5,15 @@ import com.interview.shoppingbasket.promotions.TenPercentOffPromotion;
 import com.interview.shoppingbasket.promotions.TwoForOnePromotion;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class RetailPriceCheckoutStep implements CheckoutStep {
     private PricingService pricingService;
     private double retailTotal;
+
 
     public RetailPriceCheckoutStep(PricingService pricingService) {
         this.pricingService = pricingService;
@@ -22,7 +26,8 @@ public class RetailPriceCheckoutStep implements CheckoutStep {
         basket.getItems().forEach(basketItem -> {
             double partialTotal = 0;
             basketItem.setProductRetailPrice(pricingService.getPrice(basketItem.getProductCode()));
-            Promotion promotion = getPromotionByCode(promotions, basketItem.getProductCode());
+
+            Promotion promotion = getPromotionsMap(promotions).get(basketItem.getProductCode());
             if (!Objects.isNull(promotion)) {
                 partialTotal = applyPromotion(promotion, basketItem, basketItem.getProductRetailPrice());
             } else {
@@ -52,13 +57,9 @@ public class RetailPriceCheckoutStep implements CheckoutStep {
         return price;
     }
 
-    private Promotion getPromotionByCode(List<Promotion> promotions, String code) {
-        for (Promotion promotion : promotions) {
-            if (promotion.getProductCode().equals(code)) {
-                return promotion;
-            }
-        }
-        return null;
+    private Map<String, Promotion> getPromotionsMap(List<Promotion> promotions) {
+        return promotions.stream()
+                .collect(Collectors.toMap(Promotion::getProductCode, Function.identity()));
     }
 
 }
