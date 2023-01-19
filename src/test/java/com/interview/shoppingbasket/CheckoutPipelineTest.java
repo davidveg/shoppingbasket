@@ -55,7 +55,6 @@ public class CheckoutPipelineTest {
                 .productCode("code1")
                 .productName("item 1")
                 .quantity(2)
-                .productRetailPrice(10)
                 .build();
 
         BasketItem item2 = BasketItem.builder()
